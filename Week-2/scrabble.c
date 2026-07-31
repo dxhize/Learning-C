@@ -57,19 +57,18 @@ int score_handler(string input)
 
 void lower(string word)
 {   
-    char special_chars[] = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-
     int n = strlen(word);
-    for (int i = 0, p = 0; i < n; i++)
+    for (int i = 0 ; i < n; i++)
     {
-        word[i] = tolower(word[i]);
-        // replace special characters with one of them and set its value to 0
-        if (word[p] == special_chars[i])
-        {
-            word[p] = '!';
-            p++;
-        }
+        word[i] = tolower(word[i]);        
     }   
+    for (int i = 0; i<n; i++)
+    {
+        if (!isalpha(word[i]))
+        {
+            word[i] = '!';
+        }
+    }
 }
 
 
