@@ -16,23 +16,23 @@ int main(void)
 
     if (score_handler(word1) > score_handler(word2))
     {
-        printf("Player 1 wins\n");
+        printf("Player 1 wins!\n");
     }
     else if (score_handler(word1) < score_handler(word2))
     {
-        printf("Player 2 wins\n");
+        printf("Player 2 wins!\n");
     }
     else
     {
-        printf("Tie\n");
+        printf("Tie!\n");
     }
 
 }
 
 int score_handler(string input)
 {
-    char chars[] = "abcdefghijklmnopqrstuvwxyz";
-    int scores[] = {1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10};
+    char chars[] = "!abcdefghijklmnopqrstuvwxyz";
+    int scores[] = {0,1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10};
     int n = strlen(input);
     int sum = 0;
 
@@ -57,10 +57,18 @@ int score_handler(string input)
 
 void lower(string word)
 {   
+    char special_chars[] = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+
     int n = strlen(word);
-    for (int i = 0; i < n; i++)
+    for (int i = 0, p = 0; i < n; i++)
     {
         word[i] = tolower(word[i]);
+        // replace special characters with one of them and set its value to 0
+        if (word[p] == special_chars[i])
+        {
+            word[p] = '!';
+            p++;
+        }
     }   
 }
 
