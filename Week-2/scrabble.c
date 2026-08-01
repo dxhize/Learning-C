@@ -13,12 +13,13 @@ int main(void)
     string word2 = get_string("Player 2: ");
     lower(word1);
     lower(word2);
-
-    if (score_handler(word1) > score_handler(word2))
+    int x = score_handler(word1);
+    int y = score_handler(word2);
+    if (x > y)
     {
         printf("Player 1 wins!\n");
     }
-    else if (score_handler(word1) < score_handler(word2))
+    else if (x < y)
     {
         printf("Player 2 wins!\n");
     }
