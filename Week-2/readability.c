@@ -15,8 +15,8 @@ int main(void)
     // similarly
     // we need average number of sentences per 100 words (no. of sentences is what we need this time)
     text_handler(input, values);
-    int L = (values[0]*100)/values[1];
-    int S = (values[2]*100)/values[1];
+    float L = (values[0]*100.0f)/values[1];
+    float S = (values[2]*100.0f)/values[1];
     int G;
     // once do that, we can easily extract the number of values it gets maybe we can do it all in one helper function
     // and use insert the values into the coleman formula and get the output
@@ -65,20 +65,21 @@ void text_handler(string text,int arr[])
             {
                 g++;
             }
-        }
+        }// all good till here
 
-        if (isspace(text[i]))
+        if (isspace(text[i])) // malfunctioning
         {
             if (g == 0)
             {
                 continue;
             }
-            else
-            {
+            else 
+            {   
+
                 x++;// only increment if the space came after a letter or multiple were found and then the space was present
             }
         }
-        if (text[i] == '.')
+        if (text[i] == '.' || text[i] == '!' || text[i] == '?') //perfectly running rn
         {
             if (g >= 1)
             {
@@ -88,6 +89,6 @@ void text_handler(string text,int arr[])
     }
 
     arr[0] = g;
-    arr[1] = x;
+    arr[1] = x+1;
     arr[2] = y;
 }
