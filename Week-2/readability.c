@@ -21,7 +21,7 @@ int main(void)
     // once do that, we can easily extract the number of values it gets maybe we can do it all in one helper function
     // and use insert the values into the coleman formula and get the output
     // here comes the final value
-    float index = (0.0588 * L - 0.296 * S - 15.8)f;
+    float index = (0.0588f * L) - (0.296f * S) - (15.8f);
     if (index - (int) index < 0.5000)
         {
             G = (int) index;
@@ -40,7 +40,7 @@ int main(void)
         }
     if (G >1 && G < 17)
         {
-            printf("Grade %i\n", G)
+            printf("Grade %i\n", G);
         }
     // with that said we have some edge cases, like inserting spaces alot of times before the first word
     // or multiple spaces inside the text which we need to ignore sometimes
@@ -58,10 +58,10 @@ void text_handler(string text,int arr[])
     // example- / "crow" can be a "cow", but "cow" can't be a "crow"!
     for (int i = 0, z = strlen(text); i<z; i++)
     {
-        if (isalpha(text[i]))
+        if (isalpha(text[i])) // check if its a letter
         {
             g++;
-            for (i+1; isalpha(text[i]) ; i++)
+            for (i=(i+1); isalpha(text[i]) ; i++) // check if the next character is a letter
             {
                 g++;
             }
@@ -75,14 +75,14 @@ void text_handler(string text,int arr[])
             }
             else
             {
-                x++;
+                x++;// only increment if the space came after a letter or multiple were found and then the space was present
             }
         }
         if (text[i] == '.')
         {
             if (g >= 1)
             {
-                y++;
+                y++;// statement increment only at '.'
             }
         }
     }
