@@ -10,11 +10,11 @@ int main(void)
     int values[3]; 
 
     text_handler(input, values);
-    float L = (values[0]*100.0f)/values[1];
+    float L = (values[0]*100.0f)/values[1];// using correct float data type to avoid truncation
     float S = (values[2]*100.0f)/values[1];
     int G;
 
-    float index = (0.0588f * L) - (0.296f * S) - (15.8f);
+    float index = (0.0588f * L) - (0.296f * S) - (15.8f);//the main formula
     if (index - (int) index < 0.5000)
         {
             G = (int) index;
@@ -37,18 +37,18 @@ int main(void)
         }
 }
 
-void text_handler(string text,int arr[])
+void text_handler(string text,int arr[]) // this is the handler/helper function which contains the parsing algorithm
 {
     int g = 0;
-    int x = 0;
+    int x = 0;/// these are all the counter vars
     int y = 0;
 
     for (int i = 0, z = strlen(text); i<z; i++)
     {
-        if (isalpha(text[i])) 
+        if (isalpha(text[i])) // checks for the letters in every character
         {
             g++;
-            for (i=(i+1); isalpha(text[i]) ; i++) 
+            for (i=(i+1); isalpha(text[i]) ; i++) // if matched then it keeps on cheking until the word ends
             {
                 g++;
             }
@@ -66,16 +66,16 @@ void text_handler(string text,int arr[])
                 x++;
             }
         }
-        if (text[i] == '.' || text[i] == '!' || text[i] == '?') 
+        if (text[i] == '.' || text[i] == '!' || text[i] == '?') // after a space or an exclamatory, a word is detected followed by
         {
             if (g >= 1)
             {
-                y++;
+                y++;// detection of the end of string
             }
         }
     }
 
-    arr[0] = g;
+    arr[0] = g;// finally passed to the main to compute
     arr[1] = x+1;
     arr[2] = y;
 }
