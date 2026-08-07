@@ -57,20 +57,17 @@ int main(int argc, string argv[])
         {
            if (isdigit(input[i]))
            {
-            printf("%i", input[i]);
-            i++;
+            printf("%i", input[i]);           
             continue;
            }
            else if (isblank(input[i]))
            {
-            printf("%c",input[i]);
-            i++;
+            printf("%c",input[i]); 
             continue;
            }
             else if (ispunct(input[i]))
             {
                 printf("%c",input[i]);
-                i++;
                 continue;
             }
             else
