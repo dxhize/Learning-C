@@ -8,18 +8,27 @@ int char_handler(char letter, int key);
 
 int main(int argc, string argv[])
 {   
-
     // confirm cli input in digits
+    int key;
     while (true)
     {
         if (argc == 2)
-        {   
-            if (atoi(argv[1]) == 0)
+        {   char *text = argv[1];
+            char *stop_position;
+
+            long result = strtol(text, &stop_position, 10);
+
+            if (text == stop_position)
             {
                 printf("Usage: ./caesar key\n");
                 return 1;
             }
-            else {break;}
+            
+            else
+            {
+                key = (int) result;
+                break;
+            }
         }
         else 
         {
@@ -27,8 +36,6 @@ int main(int argc, string argv[])
             return 1;
         }
     }
-    // save the key number
-    int key = atoi(argv[1]);
 
     // ***theory***
     // first we take input from user in form of command line, the input is the key
