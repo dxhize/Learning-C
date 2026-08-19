@@ -58,8 +58,8 @@ int main(int argc, string argv[])
         {
             max_vote_index = i;
         }
-        if (candidate[i].votes == candidate[max_vote_index].votes)
-        {
+        else if (candidate[i].votes == candidate[max_vote_index].votes)
+        {   
             printf("Tie!\n");
             return 1;
         }
