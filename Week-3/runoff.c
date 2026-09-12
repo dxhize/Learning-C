@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <cs50.h>
 #include <stdbool.h>
+#include <string.h>
+
+// prototypes here of helper functions
+bool vote(int voter; int rank; string name);
+void tabulate(void);
+bool print_winner(void);
+int find_min(void);
+bool is_tie(int min);
+void eliminate(int min);
 
 typedef struct
 {   
@@ -14,7 +23,6 @@ typedef struct
 
 int preferences[MAX_VOTERS][MAX_CANDIDATES];
 candidate_type candidate[MAX_CANDIDATES];
-
 
 int candidate_count;
 int voter_count;
@@ -30,17 +38,58 @@ int main(int argc, string argv)
     }
     candidate_count = argc-1;
     voter_count = get_int("Number of voters: ");
+    // returns 1 to stop process if voter count not in range
     if (voter_count < 1 || voter_count > 100)
     {
         return 1;
     }
     
+    // performs the voting operation, calls vote() on each new addition thus adding them to preference memory array
+
     for (int i = 0; i<voter_count; i++)
     {
-        ..
+        string current_candidate;
+        for (int j = 0; j<candidate_count; j++)
+        {
+            printf("Rank %i: ", j+1);
+            current_candidate = get_string("");
+            if (vote(i,j,current_candidate) == true)
+            {
+                continue;
+            }
+            else
+            {
+                return 1;
+            }
+            printf("\n");
+        }           
     }
+    
+    // calling tabulate() here will count us the total first preference votes a candidate has
+    // in case of elimination, it still works
+    // but we gotta have this running in a loop, rather than 1 single call.
+    while (true) // i know its dangerous
+    {
+        tabulate();
+        if (print_winner() == false)
+        {
+            eliminate(find_min());
+        }
+        else if (is_tie(find_min()) == true)
+        {
+            printf("Tie!");
+            return 1;
+        }
+        else
+        {
+            return 1;
+        }
+    }    
 }
-
+// this function takes these parameters, alters the preferences 2d array
+// in a way so that every voter based on their given rank and name of the candidate gets the candidate saved in their
+// ballot (2d array). performs a scan operation using a bool flag and returns true if the array is altered
+// false if name doesnt match
 bool vote(int voter; int rank; string name)
 {   
     // flag to check in the end if valid name found
@@ -68,6 +117,7 @@ bool vote(int voter; int rank; string name)
 
 // function which updates the total number of votes
 // each candidate in the top preferences of voters has
+// adds 1 vote to the initial votes, if the candidate is not eliminated
 void tabulate(void)
 {
     for (int i = 0, j = 0; i<voter_count; i++)
@@ -85,6 +135,8 @@ void tabulate(void)
     }
 }
 
+// this function can scan the candidate array, and if a winner is found, prints its name and returns true;
+// thus ending the program
 bool print_winner(void)
 {
     int half_votes = voter_count/2;
@@ -98,7 +150,7 @@ bool print_winner(void)
         else {return false;}
     }
 }
-
+// this function finds and returns the minimum number of votes a candidate has.
 int find_min(void)
 {
     int min_vote_index;
@@ -124,6 +176,8 @@ int find_min(void)
     return min_votes;
 }
 
+// checks if all candidates dont share the minimum votes possible, on this condition being true, returns false
+// else returns true
 bool is_tie(int min)
 {
     int changed_flag = 0
@@ -148,6 +202,7 @@ bool is_tie(int min)
     }
 }
 
+// takes the minimum votes value, and eliminates candidates if they have that number of votes
 void eliminate(int min)
 {
     for (int i = 0; i<candidate_count; i++)
