@@ -26,6 +26,7 @@ candidate_type candidate[MAX_CANDIDATES];
 
 int candidate_count;
 int voter_count;
+candidate_count = argc-1;
 
 int main(int argc, string argv)
 {   
@@ -36,16 +37,14 @@ int main(int argc, string argv)
         candidate[j].votes = 0
         candidate[j].eliminated = false;
     }
-    candidate_count = argc-1;
     voter_count = get_int("Number of voters: ");
-    // returns 1 to stop process if voter count not in range
+    // returns 1 to stop program if voter count not in range
     if (voter_count < 1 || voter_count > 100)
     {
         return 1;
     }
     
     // performs the voting operation, calls vote() on each new addition thus adding them to preference memory array
-
     for (int i = 0; i<voter_count; i++)
     {
         string current_candidate;
@@ -86,11 +85,13 @@ int main(int argc, string argv)
         }
     }    
 }
+
+
 // this function takes these parameters, alters the preferences 2d array
 // in a way so that every voter based on their given rank and name of the candidate gets the candidate saved in their
 // ballot (2d array). performs a scan operation using a bool flag and returns true if the array is altered
 // false if name doesnt match
-bool vote(int voter; int rank; string name)
+bool vote(int voter, int rank, string name)
 {   
     // flag to check in the end if valid name found
     int found_index;
@@ -111,17 +112,21 @@ bool vote(int voter; int rank; string name)
         return false; // remember to convert this into printf("Invalid vote"); followed by return 1;
     }
     // lets assume the name was valid and voter was 0th voter, and given data was, 0,0,alice
+    // instead of saving the name of the candidate in the 2d array we rather put the index of the candidate as per their name
+    // which can later be used to extract the name itself
     preferences[voter][rank] = found_index;    
     return true;
 }
 
 // function which updates the total number of votes
 // each candidate in the top preferences of voters has
-// adds 1 vote to the initial votes, if the candidate is not eliminated
+// adds 1 vote to the candidate's votes in the top preferences, if the candidate is not eliminated
 void tabulate(void)
 {
     for (int i = 0, j = 0; i<voter_count; i++)
     {
+        // these pointers i and j move like a file system, through the preference array, i keeps a candidate
+        // while j keeps the record of that candidate's index postion in the overall candidate array
         if (candidate[preferences[i][j]].eliminated == true)
         {
             j++;
@@ -130,7 +135,10 @@ void tabulate(void)
         }
         else 
         {
+            // right after the first not-eliminated candidate is found, their vote is added by 1, and pointer j resets
+            // to avoid garbage condidtion in next voter's ballot
             candidate[preferences[i][j]].votes++;
+            j = 0;
         }
     }
 }
@@ -153,6 +161,9 @@ bool print_winner(void)
 // this function finds and returns the minimum number of votes a candidate has.
 int find_min(void)
 {
+    // find the first candidate in the candidate array to start from on basis of elimination
+    // from the first candidate who is found not eliminated,we start further sorting 
+    // this saves some cpu cycles later during sorting (not exactly lol)
     int min_vote_index;
     for (int i = 0; i<candidate_count; i++)
     {
@@ -162,7 +173,9 @@ int find_min(void)
             break;
         }
     }
+
     int min_votes;
+    // prolly follows the selection sort mechanism
     for (int i = min_vote_index+1; i<candidate_count; i++)
     {
         if (candidate[i].eliminated == false)
