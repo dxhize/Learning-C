@@ -1,3 +1,4 @@
+// was sick for some 20+ days after my "wrote required functions" commit, continuing now!
 #include <stdio.h>
 #include <cs50.h>
 #include <stdbool.h>
