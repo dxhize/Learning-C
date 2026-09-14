@@ -5,7 +5,7 @@
 #include <string.h>
 
 // prototypes here of helper functions
-bool vote(int voter; int rank; string name);
+bool vote(int voter, int rank, string name);
 void tabulate(void);
 bool print_winner(void);
 int find_min(void);
@@ -27,17 +27,23 @@ candidate_type candidate[MAX_CANDIDATES];
 
 int candidate_count;
 int voter_count;
-candidate_count = argc-1;
 
-int main(int argc, string argv)
+int main(int argc, string argv[])
 {   
-    //copy names of candidates into a seperate array, with their votes initalized to 0, and eliminated flag initialized to false
-    for (int i = 1, j = 0; i<argc; i++, j++)
+    if (argc < 3)
     {
-        candidate[j].name = argv[i];
-        candidate[j].votes = 0
+        printf("Usage: ./runoff name_A name_B\n");
+        return 1;
+    }
+    //copy names of candidates into a seperate array, with their votes initalized to 0, and
+    //eliminated flag initialized to false
+    for (int j = 0; j<argc; j++)
+    {
+        candidate[j].name = argv[j+1];
+        candidate[j].votes = 0;
         candidate[j].eliminated = false;
     }
+    candidate_count = argc-1;
     voter_count = get_int("Number of voters: ");
     // returns 1 to stop program if voter count not in range
     if (voter_count < 1 || voter_count > 100)
@@ -45,7 +51,8 @@ int main(int argc, string argv)
         return 1;
     }
     
-    // performs the voting operation, calls vote() on each new addition thus adding them to preference memory array
+    // performs the voting operation, calls vote() on each new addition
+    // thus adding them to preference memory array
     for (int i = 0; i<voter_count; i++)
     {
         string current_candidate;
@@ -59,38 +66,42 @@ int main(int argc, string argv)
             }
             else
             {
+                printf("Invalid Vote.\n");
                 return 1;
             }
             printf("\n");
-        }           
+        }
+        printf("\n");           
     }
+    // till here we have initialised our candidate and preferences arrays with required data
     
+    // now time to set up the main election algorithm
     // calling tabulate() here will count us the total first preference votes a candidate has
     // in case of elimination, it still works
-    // but we gotta have this running in a loop, rather than 1 single call.
-    while (true) // i know its dangerous
+    for (int i = 0; i<candidate_count; i++)
     {
         tabulate();
-        if (print_winner() == false)
+        eliminate(find_min());
+        if (is_tie(find_min()))
         {
-            eliminate(find_min());
-        }
-        else if (is_tie(find_min()) == true)
-        {
-            printf("Tie!");
+            printf("Tie!\n");
             return 1;
         }
-        else
+        if (print_winner())
         {
             return 1;
         }
-    }    
+    }
+
+       
 }
 
 
 // this function takes these parameters, alters the preferences 2d array
-// in a way so that every voter based on their given rank and name of the candidate gets the candidate saved in their
-// ballot (2d array). performs a scan operation using a bool flag and returns true if the array is altered
+// in a way so that every voter based on their given rank and 
+// name of the candidate gets the candidate saved in their
+// ballot (2d array). performs a scan operation using a bool flag and 
+// returns true if the array is altered
 // false if name doesnt match
 bool vote(int voter, int rank, string name)
 {   
@@ -110,10 +121,12 @@ bool vote(int voter, int rank, string name)
     // safety false return
     if (found_name==false)   
     {
-        return false; // remember to convert this into printf("Invalid vote"); followed by return 1;
+        return false; // remember to convert this into printf("Invalid vote"); 
+                      // followed by return 1;
     }
     // lets assume the name was valid and voter was 0th voter, and given data was, 0,0,alice
-    // instead of saving the name of the candidate in the 2d array we rather put the index of the candidate as per their name
+    // instead of saving the name of the candidate in the 2d array we rather 
+    // put the index of the candidate as per their name
     // which can later be used to extract the name itself
     preferences[voter][rank] = found_index;    
     return true;
@@ -121,13 +134,16 @@ bool vote(int voter, int rank, string name)
 
 // function which updates the total number of votes
 // each candidate in the top preferences of voters has
-// adds 1 vote to the candidate's votes in the top preferences, if the candidate is not eliminated
+// adds 1 vote to the candidate's votes in the top preferences,
+// if the candidate is not eliminated
 void tabulate(void)
 {
     for (int i = 0, j = 0; i<voter_count; i++)
     {
-        // these pointers i and j move like a file system, through the preference array, i keeps a candidate
-        // while j keeps the record of that candidate's index postion in the overall candidate array
+        // these pointers i and j move like a file system, through the preference array,
+        // i keeps a candidate
+        // while j keeps the record of that candidate's index postion in the overall
+        // candidate array
         if (candidate[preferences[i][j]].eliminated == true)
         {
             j++;
@@ -136,7 +152,8 @@ void tabulate(void)
         }
         else 
         {
-            // right after the first not-eliminated candidate is found, their vote is added by 1, and pointer j resets
+            // right after the first not-eliminated candidate is found,
+            // their vote is added by 1, and pointer j resets
             // to avoid garbage condidtion in next voter's ballot
             candidate[preferences[i][j]].votes++;
             j = 0;
@@ -144,7 +161,8 @@ void tabulate(void)
     }
 }
 
-// this function can scan the candidate array, and if a winner is found, prints its name and returns true;
+// this function can scan the candidate array, and if a winner is found, 
+// prints its name and returns true;
 // thus ending the program
 bool print_winner(void)
 {
@@ -162,7 +180,7 @@ bool print_winner(void)
 // this function finds and returns the minimum number of votes a candidate has.
 int find_min(void)
 {
-    // find the first candidate in the candidate array to start from on basis of elimination
+    // finds the first candidate in the candidate array to start from on basis of elimination
     // from the first candidate who is found not eliminated,we start further sorting 
     // this saves some cpu cycles later during sorting (not exactly lol)
     int min_vote_index;
@@ -176,9 +194,10 @@ int find_min(void)
     }
 
     int min_votes;
-    // prolly follows the selection sort mechanism
+    // follows the selection sort mechanism
     for (int i = min_vote_index+1; i<candidate_count; i++)
     {
+        // second layer elimination check
         if (candidate[i].eliminated == false)
         {
             if (candidate[i].votes < candidate[min_vote_index].votes)
@@ -190,11 +209,12 @@ int find_min(void)
     return min_votes;
 }
 
-// checks if all candidates dont share the minimum votes possible, on this condition being true, returns false
+// checks if all candidates dont share the minimum votes possible,
+// on this condition being true, returns false
 // else returns true
 bool is_tie(int min)
 {
-    int changed_flag = 0
+    int changed_flag = 0;
     for (int i = 0; i<candidate_count; i++)
     {
         if (candidate[i].votes == min)
