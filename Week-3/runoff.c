@@ -81,12 +81,12 @@ int main(int argc, string argv[])
     for (int i = 0; i<candidate_count; i++)
     {
         tabulate();
-        eliminate(find_min());
         if (is_tie(find_min()))
         {
             printf("Tie!\n");
             return 1;
         }
+        eliminate(find_min());
         if (print_winner())
         {
             return 1;
@@ -145,10 +145,17 @@ void tabulate(void)
         // while j keeps the record of that candidate's index postion in the overall
         // candidate array
         if (candidate[preferences[i][j]].eliminated == true)
-        {
-            j++;
-            i--;
-            continue;
+        {   
+            if (j<=candidate_count)
+            {
+                j++;
+                i--;
+                continue;
+            }
+            else
+            {
+                continue;
+            }
         }
         else 
         {
