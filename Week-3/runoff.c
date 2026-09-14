@@ -189,25 +189,22 @@ int find_min(void)
 {
     // finds the first candidate in the candidate array to start from on basis of elimination
     // from the first candidate who is found not eliminated,we start further sorting 
-    // this saves some cpu cycles later during sorting (not exactly lol)
-    int min_vote_index;
+    int start_index;
     for (int i = 0; i<candidate_count; i++)
     {
         if (candidate[i].eliminated == false)
         {
-            min_vote_index = i;
+            start_index = i;
             break;
-        }
+       }
     }
-
-    int min_votes;
+    int min_votes = candidate[start_index].votes;
     // follows the selection sort mechanism
-    for (int i = min_vote_index+1; i<candidate_count; i++)
+    for (int i = start_index+1; i<candidate_count; i++)
     {
-        // second layer elimination check
         if (candidate[i].eliminated == false)
         {
-            if (candidate[i].votes < candidate[min_vote_index].votes)
+            if (candidate[i].votes < candidate[start_index].votes)
             {
                 min_votes = candidate[i].votes;
             }
