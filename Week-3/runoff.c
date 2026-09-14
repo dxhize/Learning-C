@@ -181,8 +181,8 @@ bool print_winner(void)
             printf("%s\n", candidate[i].name);
             return true;
         }
-        else {return false;}
     }
+    return false;
 }
 // this function finds and returns the minimum number of votes a candidate has.
 int find_min(void)
