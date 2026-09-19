@@ -128,6 +128,10 @@ int main(int argc, char *argv[])
     {
         grayscale(bit_height, bit_width, pix_data_arr);
     }
+    if (flag == 's')
+    {
+        sepia(bit_height, bit_width, pix_data_arr);
+    }
 
     size_t data_wrote1 = fwrite(&info_header, sizeof(CustomInfoHeaderStruct), 1, dst);
     if (data_wrote1 != 1)
@@ -167,7 +171,6 @@ int main(int argc, char *argv[])
 
 void grayscale(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
 {
-    
     for (int i = 0; i<height; i++)
     {
         for (int j = 0; j<width; j++)
@@ -182,7 +185,34 @@ void grayscale(uint32_t height, uint32_t width, pix_data pix_data_arr[height][wi
 
 void sepia(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
 {
-
+    uint32_t sepiaRed;
+    uint32_t sepiaGreen;
+    uint32_t sepiaBlue;
+    
+    for (int i = 0; i<height; i++)
+    {
+        for (int j = 0; j<width; j++)
+        {
+            sepiaRed = .393 * pix_data_arr[i][j].red + .769 * pix_data_arr[i][j].green + .189 * pix_data_arr[i][j].blue;
+            sepiaGreen = .349 * pix_data_arr[i][j].red + .686 * pix_data_arr[i][j].green + .168 * pix_data_arr[i][j].blue;
+            sepiaBlue = .272 * pix_data_arr[i][j].red + .534 * pix_data_arr[i][j].green + .131 * pix_data_arr[i][j].blue;
+            if (sepiaRed > 255)
+            {
+                sepiaRed = 255;
+            }
+            if (sepiaBlue > 255)
+            {
+                sepiaBlue = 255;
+            }
+            if (sepiaGreen > 255)
+            {
+                sepiaGreen = 255;
+            }
+            pix_data_arr[i][j].red = sepiaRed;
+            pix_data_arr[i][j].green = sepiaGreen;
+            pix_data_arr[i][j].blue = sepiaBlue;
+        }
+    }
 }
 
 void reflect(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
