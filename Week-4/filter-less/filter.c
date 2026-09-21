@@ -27,6 +27,8 @@ void grayscale(uint32_t height, uint32_t width, pix_data pix_data_arr[height][wi
 void sepia(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width]);
 void reflect(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width]);
 void blur(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width]);
+int max(int i, int j);
+int min(int i, int j);
 
 int main(int argc, char *argv[])
 {
@@ -132,6 +134,14 @@ int main(int argc, char *argv[])
     {
         sepia(bit_height, bit_width, pix_data_arr);
     }
+    if (flag == 'r')
+    {
+        reflect(bit_height, bit_width, pix_data_arr);
+    }
+    if (flag == 'b')
+    {
+        blur(bit_height, bit_width, pix_data_arr);
+    }
 
     size_t data_wrote1 = fwrite(&info_header, sizeof(CustomInfoHeaderStruct), 1, dst);
     if (data_wrote1 != 1)
@@ -217,11 +227,116 @@ void sepia(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width]
 
 void reflect(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
 {
+    for (int i = 0; i<height; i++)
+    {
+        for (int j = 0; j<width/2; j++)
+        {
+            pix_data tmp;
+            tmp = pix_data_arr[i][j];
+            pix_data_arr[i][j] = pix_data_arr[i][width-1-j];
+            pix_data_arr[i][width-1-j] = tmp;
+        }
+    }
+}
 
+int max(int i, int j)
+{
+    if (i>j)
+    {
+        return i;
+    }
+    else if (i == j)
+    {
+        return j;
+    }
+    else
+    {
+        return j;
+    }
+}
+int min(int i, int j)
+{
+    if (i<j)
+    {
+        return i;
+    }
+    else if (i == j)
+    {
+        return j;
+    }
+    else
+    {
+        return j;
+    }
 }
 
 void blur(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
 {
+    pix_data img_cpy[height][width];
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            img_cpy[i][j] = pix_data_arr[i][j];
+        }
+    }   // till here we made a copy of the og array
+
+    for (int i = 0; i<height; i++)
+    {
+        for (int j = 0; j<width; j++)
+        {
+            int row_start = max(0, i-1);
+            int row_end = min(width -1, i+1);
+
+            int col_start = max(0, j-1);
+            int col_end = min(height-1, j+1);
+            int row_arr[row_end - row_start + 1];
+            int col_arr[col_end - col_start + 1];
+            if (row_end - row_start + 1 == 2)
+            {
+                row_arr[0] = row_start;
+                row_arr[1] = row_end;
+            }
+            if (row_end - row_start + 1 == 3)
+            {
+                row_arr[0] = row_start;
+                row_arr[1] = row_end -1;
+                row_arr[2] = row_end;
+            }
+            if (col_end - col_start + 1 == 2)
+            {
+                col_arr[0] = col_start;
+                col_arr[1] = col_end;
+            }
+            if (col_end - col_start + 1 == 3)
+            {
+                col_arr[0] = col_start;
+                col_arr[1] = col_end -1;
+                col_arr[2] = col_end;
+            }
+            uint32_t ttl_red = 0;
+            uint32_t ttl_blue = 0;
+            uint32_t ttl_green = 0;
+
+            for (int j = 0; j<col_end - col_start + 1; j++)     
+            {
+                for (int k = 0; k<row_end - row_start + 1; k++)
+                {
+                    ttl_red += img_cpy[col_arr[j]][row_arr[k]].red;
+                    ttl_green += img_cpy[col_arr[j]][row_arr[k]].green;
+                    ttl_blue += img_cpy[col_arr[j]][row_arr[k]].blue; 
+                } 
+            }
+            uint8_t avg_red = ttl_red/((row_end - row_start + 1) * (col_end - col_start +1));
+            uint8_t avg_blue = ttl_blue/((row_end - row_start + 1) * (col_end - col_start +1));
+            uint8_t avg_green = ttl_green/((row_end - row_start + 1) * (col_end - col_start +1));
+
+            pix_data_arr[i][j].red = avg_red;
+            pix_data_arr[i][j].green = avg_green;
+            pix_data_arr[i][j].blue = avg_blue;
+        }
+    }
+
 
 }
 
