@@ -1,0 +1,32 @@
+a pixel is made of 3 bytes in a 24bit bmp file format
+the 3 bytes contain values for the bgr upto 255 each (0indexing)
+
+"an image is a matrix of pixels"
+we can set up a matrix using a 2d array 
+arr[width][height]
+
+Because width and height are determined at runtime (when the file is opened), you will need to allocate this memory dynamically (using malloc) or use a variable-length array if your setup allows it.
+
+Every single row of pixels in the file must have a byte size that is a multiple of 4.
+this means, 
+if each pixel is 3bytes each, and say u have total 3 pixels so u made 9bytes, remaining to complete a multiple of 4 will be 3, and these 3 bytes will be padding bytes containing a value of 0
+
+so first we have to store the pixel data excluding the padding bytes, 
+
+once we have filled the image pixel data into our 2d array, excluding the padding bytes, we can proceed towards compiling the image into the output
+
+so till now we filled our 2d array with the needed data about the pixels data
+now we need to first write back the info headers to the file
+
+now we have written the info header data back into the dst from the memory
+
+now what we are gonna do is write all the remaining pixel data back into the dst with fseek and padding help
+
+// so we just wrote the image back into the new file completely.
+now we can test it first, debugg it and proceed onto manipulating the pix_data_arr values to achive filters
+
+to find valid range for rows and columns we can use the expression 
+
+max(0,i-1) <= r <= min(N-1,i+1)
+
+just replace r with c and i with j, and it becomes a formula for the valid columns, we can perform this, save the data into 2 different arrays, perform cross array multiplication in a 2 nested loop and blur the pixels

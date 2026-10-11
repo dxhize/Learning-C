@@ -96,13 +96,18 @@ int main(int argc, char *argv[])
     }// a quick safety check for the bmp formatting
     printf("24-bit format verified!\n");
 
-    pix_data pix_data_arr[bit_height][bit_width];
+    printf("Height: %i\n", bit_height);
+    printf("Width: %i\n", bit_width);
+
+    //pix_data pix_data_arr[bit_height][bit_width];
+    pix_data (*pix_data_arr)[bit_height] = malloc(abs(bit_height)*bit_width*sizeof(pix_data));
     int padding = (4 - (bit_width * 3) % 4) % 4;
+
 
     uint32_t data_read1 = 0;
     uint32_t p = 0;
 
-    for (int i = 0; i<bit_height; i++)
+    for (int i = 0; i<abs(bit_height); i++)
     {
         for (int j = 0; j<bit_width; j++)
         {
@@ -111,14 +116,28 @@ int main(int argc, char *argv[])
         }
         fseek(src, padding, SEEK_CUR);
         p += padding;
-    } 
+    }
+
+    if (bit_height < 0)
+    {
+        for (int i = 0; i < abs(bit_height) / 2; i++)
+        {
+            for (int j = 0; j < bit_width; j++)
+            {
+                pix_data tmp = pix_data_arr[i][j];
+                pix_data_arr[i][j] = pix_data_arr[abs(bit_height) - 1 - i][j];
+                pix_data_arr[abs(bit_height) - 1 - i][j] = tmp;
+            }
+        }
+    }
+    
     // till here the pix_data_arr will be filled up with the pixel data, and can be used futher
-    if (data_read1 != bit_width*bit_height)
+    if (data_read1 != bit_width*abs(bit_height))
         {
             printf("Unable to read Pixel data. Terminating execution.\n");
             return 1;
         }
-    if (p!=bit_height*padding)
+    if (p!=abs(bit_height)*padding)
         {
             printf("Encountered an Error while skipping padding bytes. Contact the Dumb Developer!\n");
             return 1; 
@@ -128,19 +147,19 @@ int main(int argc, char *argv[])
 
     if (flag == 'g')
     {
-        grayscale(bit_height, bit_width, pix_data_arr);
+        grayscale(abs(bit_height), bit_width, pix_data_arr);
     }
     if (flag == 's')
     {
-        sepia(bit_height, bit_width, pix_data_arr);
+        sepia(abs(bit_height), bit_width, pix_data_arr);
     }
     if (flag == 'r')
     {
-        reflect(bit_height, bit_width, pix_data_arr);
+        reflect(abs(bit_height), bit_width, pix_data_arr);
     }
     if (flag == 'b')
     {
-        blur(bit_height, bit_width, pix_data_arr);
+        blur(abs(bit_height), bit_width, pix_data_arr);
     }
 
     size_t data_wrote1 = fwrite(&info_header, sizeof(CustomInfoHeaderStruct), 1, dst);
@@ -155,7 +174,7 @@ int main(int argc, char *argv[])
     int write_safe = 0;
     printf("starting image_data write\n");
 
-    for (int i = 0; i<bit_height; i++)
+    for (int i = 0; i<abs(bit_height); i++)
     {
         for (int j = 0; j<bit_width; j++)
         {
@@ -164,14 +183,14 @@ int main(int argc, char *argv[])
         }
         fwrite(&zero_padder, sizeof(uint8_t), padding, dst);
     }
-    if (write_safe != bit_width*bit_height)
+    if (write_safe != bit_width*abs(bit_height))
     {
         printf("encountered error while writing image_data.\n");
         return 1;
     }
     printf("File created!\n");
     printf("file details: \n");
-    printf("    Resolution: %ix%i\n", bit_width, bit_height);
+    printf("    Resolution: %ix%i\n", bit_width, abs(bit_height));
     printf("    Bits per pixel: %i\n", info_header.bits_per_pixels);
     printf("    File format: 24-Bit BMP\n");
 
@@ -272,24 +291,24 @@ int min(int i, int j)
 
 void blur(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
 {
-    pix_data img_cpy[height][width];
+    pix_data (*img_cpy)[height] = malloc(height*width*sizeof(pix_data));
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
             img_cpy[i][j] = pix_data_arr[i][j];
         }
-    }   // till here we made a copy of the og array
+    }
 
-    for (int i = 0; i<height; i++)
+    for (int i = 0; i < height; i++)
     {
-        for (int j = 0; j<width; j++)
+        for (int j = 0; j < width; j++)
         {
-            int row_start = max(0, i-1);
-            int row_end = min(width -1, i+1);
+            int row_start = max(0, i - 1);
+            int row_end = min(height - 1, i + 1);   // FIX 1: was width
+            int col_start = max(0, j - 1);
+            int col_end = min(width - 1, j + 1);    // FIX 1: was height
 
-            int col_start = max(0, j-1);
-            int col_end = min(height-1, j+1);
             int row_arr[row_end - row_start + 1];
             int col_arr[col_end - col_start + 1];
             if (row_end - row_start + 1 == 2)
@@ -300,7 +319,7 @@ void blur(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
             if (row_end - row_start + 1 == 3)
             {
                 row_arr[0] = row_start;
-                row_arr[1] = row_end -1;
+                row_arr[1] = row_end - 1;
                 row_arr[2] = row_end;
             }
             if (col_end - col_start + 1 == 2)
@@ -311,32 +330,31 @@ void blur(uint32_t height, uint32_t width, pix_data pix_data_arr[height][width])
             if (col_end - col_start + 1 == 3)
             {
                 col_arr[0] = col_start;
-                col_arr[1] = col_end -1;
+                col_arr[1] = col_end - 1;
                 col_arr[2] = col_end;
             }
+
             uint32_t ttl_red = 0;
             uint32_t ttl_blue = 0;
             uint32_t ttl_green = 0;
 
-            for (int j = 0; j<col_end - col_start + 1; j++)     
+            for (int c = 0; c < col_end - col_start + 1; c++)   // renamed j -> c, k -> r
             {
-                for (int k = 0; k<row_end - row_start + 1; k++)
+                for (int r = 0; r < row_end - row_start + 1; r++)
                 {
-                    ttl_red += img_cpy[col_arr[j]][row_arr[k]].red;
-                    ttl_green += img_cpy[col_arr[j]][row_arr[k]].green;
-                    ttl_blue += img_cpy[col_arr[j]][row_arr[k]].blue; 
-                } 
+                    // FIX 2: row goes in the first bracket, column in the second
+                    ttl_red += img_cpy[row_arr[r]][col_arr[c]].red;
+                    ttl_green += img_cpy[row_arr[r]][col_arr[c]].green;
+                    ttl_blue += img_cpy[row_arr[r]][col_arr[c]].blue;
+                }
             }
-            uint8_t avg_red = ttl_red/((row_end - row_start + 1) * (col_end - col_start +1));
-            uint8_t avg_blue = ttl_blue/((row_end - row_start + 1) * (col_end - col_start +1));
-            uint8_t avg_green = ttl_green/((row_end - row_start + 1) * (col_end - col_start +1));
 
-            pix_data_arr[i][j].red = avg_red;
-            pix_data_arr[i][j].green = avg_green;
-            pix_data_arr[i][j].blue = avg_blue;
+            int count = (row_end - row_start + 1) * (col_end - col_start + 1);
+
+            // FIX 3 (optional): round to nearest instead of truncating
+            pix_data_arr[i][j].red = (ttl_red + count / 2) / count;
+            pix_data_arr[i][j].green = (ttl_green + count / 2) / count;
+            pix_data_arr[i][j].blue = (ttl_blue + count / 2) / count;
         }
     }
-
-
 }
-
