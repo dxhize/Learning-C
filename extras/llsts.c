@@ -70,7 +70,7 @@ void print_llst(node *list)
     if (list == NULL) 
     {
         printf("Empty List\n");
-        return;
+        return NULL;
     }
 
     node *ptr = list;
