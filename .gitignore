@@ -12,3 +12,6 @@ libcs50
 /Week-5/test
 
 
+hash.c
+extras/hash.c
+extras/time_test.c
